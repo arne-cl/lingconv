@@ -1,6 +1,8 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 """
-This Ipython script converts the inline XML tokenization format used for
+This script converts the inline XML tokenization format used for
 MAZ1270 to the more conventional one-token-per-line (with empty lines 
 between sentences) format.
 
@@ -68,11 +70,6 @@ def extract_sentences(xml_file):
         return sentences
     except etree.XMLSyntaxError as e:
         print e.msg
-        lineno = int(re.search(r'line (\d+),', e.msg).group(1))
-        # TODO: remove IPython-specific code after debugging
-        # this opens the broken XML file in the text editor geany
-        # on the line that etree can't parse
-        !geany $xml_file --line $lineno
 
 
 def create_dir(path):

@@ -40,6 +40,18 @@ import codecs
 from bs4 import UnicodeDammit
 from lxml import etree
 
+
+SOFT_HYPHEN_RE = re.compile('\xc2\xad') # (mostly) invisible char
+
+def remove_soft_hyphen(input_str):
+    """
+    removes invisible soft-hyphens from a string.
+
+    input: 'FOO\xc2\xadBAR'
+    output: 'FOOBAR'
+    """
+    return re.sub(SOFT_HYPHEN_RE, '', input_str)
+
 def abslistdir(directory):
     """
     returns a list of absolute filepaths for all files found in the given
@@ -56,8 +68,9 @@ def extract_sentences(xml_file):
     file.
     """
     try:
-        tree = etree.parse(xml_file)
-        paragraphs = tree.findall('/paragraph')
+        xml_str = remove_soft_hyphen(open(xml_file, 'r').read())
+        tree = etree.fromstring(xml_str)
+        paragraphs = tree.findall('paragraph')
         sentences = []
         for para in paragraphs:
             for sent in para.findall('sentence'):

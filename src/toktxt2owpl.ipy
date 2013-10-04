@@ -1,0 +1,75 @@
+# -*- coding: utf-8 -*-
+# <nbformat>3.0</nbformat>
+
+# <markdowncell>
+
+# # Tokenisierungsprobleme im PCC #
+# 
+# ## Plaintext-Format *.tok.txt ##
+# 
+# 1. Wörter/Satzzeichen durch Whitespace getrennt
+# 2. Sätze werden nicht weiter voneinander getrennt! Ausnahme: auf Überschrift folgt "\n\n"
+# 3. machen Wörter sind durch sog. Soft-Hyphens "\xc2\xad" getrennt!
+#    - Soft-Hypens haben die Stringlänge 2
+#    - sind unsichtbar, entsprechen visuell dem leeren String, d.h. "" und "\xc2\xad" sind optisch nicht zu unterscheiden
+
+# <codecell>
+
+soft_hyphen = "\xc2\xad"
+print soft_hyphen; print len(soft_hyphen)
+test = "werden soll \xc2\xad auf Kosten"
+print test, len(test)
+
+# <codecell>
+
+cd ~/repos/anaphora_graphs/data/pcc176/tokenized
+
+# <codecell>
+
+filenames = !ls *.tok.txt
+output_dir = "/home/arne/repos/anaphora_graphs/data/pcc176/owpl"
+
+# <codecell>
+
+def parse_pcc_tokenized_file(filepath):
+    # sentence endings in tokenized text, e.g. ' . ' or ' ! '
+    SENTENCE_SPLIT_REGEX = re.compile(' (\.|!|\?) ')
+    
+    # words are sometimes separated by a whitespace soft-hyphen whitespace combination
+    # if that's not the case, simply split after one whitespace
+    WORD_SPLIT_REGEX = re.compile(' \xc2\xad | ')
+    with open(filepath, 'r') as infile:
+        # all sentence endings are signalled by '\n\n'
+        text_with_newlines = re.sub(SENTENCE_SPLIT_REGEX, r' \1\n\n', infile.read())
+        #return text_with_newlines
+        return re.split(WORD_SPLIT_REGEX, text_with_newlines)
+
+# <codecell>
+
+def write_owpl(lines, input_filepath, output_dir):
+    """
+    Writes the tokenized input to an one-word-per-line output file
+    (with sentences separated by two newlines).
+    
+    Params
+    ------
+    lines : list of str
+        list of strings which contain one word each
+    """
+    _path, basename = os.path.split(input_filepath)
+    # basename is the filename of the pcc tokenized file, it ends with '.tok.txt'
+    outname = os.path.join(output_dir, basename[:-8] + '.owpl')
+    with open(outname, 'w') as outfile:
+        for line in lines:
+            outfile.write(line + '\n')
+
+# <codecell>
+
+import re
+import os
+from __future__ import print_function
+
+for fname in filenames:
+    lines = parse_pcc_tokenized_file(fname)
+    write_owpl(lines, fname, output_dir)
+

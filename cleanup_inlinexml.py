@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-This script removes errors from MAX1270 inline XML formatted tokenized files,
+This script removes errors from MAZ1270 inline XML formatted tokenized files,
 where the files contain a certain HTML string that shouldn't be there:
 
 </sentence><sentence>
